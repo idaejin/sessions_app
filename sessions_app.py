@@ -23,6 +23,12 @@ if uploaded_files:
             df['SESSIONS'] = df['SESIONES'].astype(str).str.extract(r'(\d+)')[0]
             df['SESSIONS'] = pd.to_numeric(df['SESSIONS'], errors='coerce').fillna(0).astype(int)
 
+            # Clasificación de convocatoria estacional
+            df['CONVOCATORIA_ESTACIONAL'] = df['PERIODO_DE_IMPARTICIÓN'].astype(str).str.lower().map(
+                lambda x: "Spring" if "spring" in x or "primavera" in x else
+                          "Fall" if "fall" in x or "otoño" in x else "Otro"
+            )
+
             all_data.append(df)
 
         except Exception as e:
@@ -30,7 +36,7 @@ if uploaded_files:
 
     if all_data:
         data = pd.concat(all_data, ignore_index=True)
-        st.markdown(f"🔢 **Total de sesiones:** `{data['SESSIONS'].sum()}` — 📚 **Asignaciones cargadas:** `{data.shape[0]}`")
+        st.markdown(f"🔢 **Total de sesiones:** `{data['SESSIONS'].sum()}` — 📚 **Asignaciones cargadas:** `{data.shape[0]}`)")
 
         tabs = st.tabs([
             "📌 Resumen general",
@@ -77,11 +83,12 @@ if uploaded_files:
 
         # TAB 3: FILTROS COMBINADOS
         with tabs[2]:
-            st.markdown("### 🔎 Filtra por profesor + tipo de participación + programa")
+            st.markdown("### 🔎 Filtra por profesor + tipo de participación + programa + temporada")
 
             prof = st.multiselect("Profesor", options=data['PROFESOR'].dropna().unique())
             tipo_p = st.multiselect("Tipo P.", options=data['TIPO_P.'].dropna().unique())
             prog = st.multiselect("Programa", options=data['PROGRAMA'].dropna().unique())
+            temporada = st.multiselect("Temporada (Spring/Fall/Otro)", options=data['CONVOCATORIA_ESTACIONAL'].dropna().unique())
 
             filtro = data.copy()
             if prof:
@@ -90,8 +97,10 @@ if uploaded_files:
                 filtro = filtro[filtro['TIPO_P.'].isin(tipo_p)]
             if prog:
                 filtro = filtro[filtro['PROGRAMA'].isin(prog)]
+            if temporada:
+                filtro = filtro[filtro['CONVOCATORIA_ESTACIONAL'].isin(temporada)]
 
-            columnas_mostrar = ['PROFESOR', 'TIPO_P.', 'PROGRAMA', 'SECCIÓN', 'NOMBRE_DE_LA_ASIGNATURA', 'SESSIONS']
+            columnas_mostrar = ['PROFESOR', 'TIPO_P.', 'PROGRAMA', 'SECCIÓN', 'NOMBRE_DE_LA_ASIGNATURA', 'CONVOCATORIA_ESTACIONAL', 'SESSIONS']
             columnas_presentes = [col for col in columnas_mostrar if col in filtro.columns]
 
             st.dataframe(filtro[columnas_presentes])
@@ -132,7 +141,7 @@ if uploaded_files:
                 'TIPO_PRO.', 'DOCTORADO', 'ACREDITACIÓN', 'FECHA_DESDE', 'FECHA_HASTA', 'PERIODO_DE_IMPARTICIÓN',
                 'PERIODO_ACADÉMICO', 'SESIONES', 'S._LV-IP', 'S._ASYNC', 'FORO', 'S._TUTOR', 'S._LV-OL',
                 'IDIOMA', 'AREA', 'TIPO_ASIG.', 'TIPO_P.', 'OBS._DIR_ÁREA', 'OBS._DIR_PROG.',
-                'PAGO_ESTÁNDAR', 'OK_DP', 'RES._ASIG.'
+                'PAGO_ESTÁNDAR', 'OK_DP', 'RES._ASIG.', 'CONVOCATORIA_ESTACIONAL'
             ]
 
             available_cols = [col for col in full_columns if col in data.columns]
