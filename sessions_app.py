@@ -77,28 +77,26 @@ if uploaded_files:
 
         # TAB 3: FILTROS COMBINADOS
         with tabs[2]:
-        st.markdown("### 🔎 Filtra por profesor + tipo de participación + programa")
-    
-        prof = st.multiselect("Profesor", options=data['PROFESOR'].dropna().unique())
-        tipo_p = st.multiselect("Tipo P.", options=data['TIPO_P.'].dropna().unique())
-        prog = st.multiselect("Programa", options=data['PROGRAMA'].dropna().unique())
-    
-        filtro = data.copy()
-        if prof:
-            filtro = filtro[filtro['PROFESOR'].isin(prof)]
-        if tipo_p:
-            filtro = filtro[filtro['TIPO_P.'].isin(tipo_p)]
-        if prog:
-            filtro = filtro[filtro['PROGRAMA'].isin(prog)]
-    
-        # Columnas que deseas mostrar en la tabla
-        columnas_mostrar = ['PROFESOR', 'TIPO_P.', 'PROGRAMA', 'SECCIÓN', 'NOMBRE_DE_LA_ASIGNATURA', 'SESSIONS']
-        columnas_presentes = [col for col in columnas_mostrar if col in filtro.columns]
-    
-        st.dataframe(filtro[columnas_presentes])
-        st.markdown(f"🎯 **Total sesiones filtradas:** {filtro['SESSIONS'].sum()}")
-        st.download_button("📥 Descargar resultados combinados", filtro[columnas_presentes].to_csv(index=False), file_name="filtro_combinado.csv")
-    
+            st.markdown("### 🔎 Filtra por profesor + tipo de participación + programa")
+
+            prof = st.multiselect("Profesor", options=data['PROFESOR'].dropna().unique())
+            tipo_p = st.multiselect("Tipo P.", options=data['TIPO_P.'].dropna().unique())
+            prog = st.multiselect("Programa", options=data['PROGRAMA'].dropna().unique())
+
+            filtro = data.copy()
+            if prof:
+                filtro = filtro[filtro['PROFESOR'].isin(prof)]
+            if tipo_p:
+                filtro = filtro[filtro['TIPO_P.'].isin(tipo_p)]
+            if prog:
+                filtro = filtro[filtro['PROGRAMA'].isin(prog)]
+
+            columnas_mostrar = ['PROFESOR', 'TIPO_P.', 'PROGRAMA', 'SECCIÓN', 'NOMBRE_DE_LA_ASIGNATURA', 'SESSIONS']
+            columnas_presentes = [col for col in columnas_mostrar if col in filtro.columns]
+
+            st.dataframe(filtro[columnas_presentes])
+            st.markdown(f"🎯 **Total sesiones filtradas:** {filtro['SESSIONS'].sum()}")
+            st.download_button("📥 Descargar resultados combinados", filtro[columnas_presentes].to_csv(index=False), file_name="filtro_combinado.csv")
 
         # TAB 4: LÍNEA TEMPORAL
         with tabs[3]:
@@ -160,5 +158,4 @@ if uploaded_files:
 
                 st.dataframe(df_filtered)
                 st.markdown(f"🔢 **Total filas filtradas:** {df_filtered.shape[0]} — **Total sesiones:** {df_filtered['SESSIONS'].sum()}")
-
                 st.download_button("📥 Descargar resultados filtrados", df_filtered.to_csv(index=False), file_name="filtro_columna.csv")
