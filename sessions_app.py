@@ -2,17 +2,9 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from io import BytesIO
-import os
 
 st.set_page_config(page_title="Análisis de Asignaturas IE", layout="wide")
 st.title("📚 Análisis de Asignaturas desde Múltiples Excels")
-
-# Verificar si Kaleido está disponible para exportar imágenes y si no estamos en Streamlit Cloud
-try:
-    import kaleido
-    export_enabled = "STREAMLIT_SERVER_HEADLESS" not in os.environ
-except ImportError:
-    export_enabled = False
 
 uploaded_files = st.file_uploader("Carga uno o varios archivos Excel", type=["xlsx"], accept_multiple_files=True)
 
@@ -126,19 +118,6 @@ if uploaded_files:
             st.markdown("### 📁 Exportar resúmenes a CSV")
             st.download_button("📥 Descargar resumen por área", area_summary.to_csv(index=False), file_name="resumen_area.csv")
             st.download_button("📥 Descargar resumen por tipo", tipo_summary.to_csv(index=False), file_name="resumen_tipo.csv")
-
-            st.markdown("### 🖼️ Exportar gráficos como imagen")
-            if export_enabled:
-                img_format = st.radio("Formato", options=["png", "svg", "jpeg"])
-                selected_fig = st.selectbox("¿Qué gráfico exportar?", ["Sesiones por Área", "Distribución por Tipo"])
-                fig_to_save = fig_area if selected_fig == "Sesiones por Área" else fig_tipo
-
-                buffer = BytesIO()
-                fig_to_save.write_image(buffer, format=img_format)
-                st.download_button("📸 Descargar imagen", data=buffer.getvalue(),
-                                   file_name=f"{selected_fig.replace(' ', '_')}.{img_format}")
-            else:
-                st.warning("⚠️ La exportación a imagen no está disponible en este entorno.")
 
         # TAB 6: DATOS DETALLADOS
         with tabs[5]:
