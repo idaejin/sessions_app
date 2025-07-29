@@ -2,14 +2,15 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from io import BytesIO
+import os
 
 st.set_page_config(page_title="Análisis de Asignaturas IE", layout="wide")
 st.title("📚 Análisis de Asignaturas desde Múltiples Excels")
 
-# Verificar si Kaleido está disponible para exportar imágenes
+# Verificar si Kaleido está disponible para exportar imágenes y si no estamos en Streamlit Cloud
 try:
     import kaleido
-    export_enabled = True
+    export_enabled = "STREAMLIT_SERVER_HEADLESS" not in os.environ
 except ImportError:
     export_enabled = False
 
